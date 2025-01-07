@@ -1,6 +1,7 @@
 package com.andrezktt.product_catalog.services;
 
 import com.andrezktt.product_catalog.dto.CategoryDTO;
+import com.andrezktt.product_catalog.entities.Category;
 import com.andrezktt.product_catalog.repositories.CategoryRepository;
 import com.andrezktt.product_catalog.services.exceptions.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,5 +24,13 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryDTO findById(Long id) {
         return new CategoryDTO(repository.findById(id).orElseThrow(() -> new EntityNotFoundException("Entity not found!")));
+    }
+
+    @Transactional
+    public CategoryDTO insert(CategoryDTO dto) {
+        Category entity = new Category();
+        entity.setName(dto.getName());
+        entity = repository.save(entity);
+        return new CategoryDTO(entity);
     }
 }
