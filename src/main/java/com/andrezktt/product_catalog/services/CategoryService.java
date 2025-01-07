@@ -1,5 +1,6 @@
 package com.andrezktt.product_catalog.services;
 
+import com.andrezktt.product_catalog.dto.CategoryDTO;
 import com.andrezktt.product_catalog.entities.Category;
 import com.andrezktt.product_catalog.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class CategoryService {
     private CategoryRepository repository;
 
     @Transactional(readOnly = true)
-    public List<Category> findAll() {
-        return repository.findAll();
+    public List<CategoryDTO> findAll() {
+        return repository.findAll().stream().map(CategoryDTO::new).toList();
     }
 }
