@@ -2,6 +2,7 @@ package com.andrezktt.product_catalog.controllers;
 
 import com.andrezktt.product_catalog.dto.UserDTO;
 import com.andrezktt.product_catalog.dto.UserInsertDTO;
+import com.andrezktt.product_catalog.dto.UserUpdateDTO;
 import com.andrezktt.product_catalog.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserDTO dto) {
+    public ResponseEntity<UserDTO> update(@PathVariable Long id, @Valid @RequestBody UserUpdateDTO dto) {
         return ResponseEntity.ok().body(service.update(id, dto));
     }
 

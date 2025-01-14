@@ -3,6 +3,7 @@ package com.andrezktt.product_catalog.services;
 import com.andrezktt.product_catalog.config.AppConfig;
 import com.andrezktt.product_catalog.dto.UserDTO;
 import com.andrezktt.product_catalog.dto.UserInsertDTO;
+import com.andrezktt.product_catalog.dto.UserUpdateDTO;
 import com.andrezktt.product_catalog.entities.Role;
 import com.andrezktt.product_catalog.entities.User;
 import com.andrezktt.product_catalog.repositories.RoleRepository;
@@ -52,7 +53,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserDTO update(Long id, UserDTO dto) {
+    public UserDTO update(Long id, UserUpdateDTO dto) {
         try {
             User entity = repository.getReferenceById(id);
             copyDtoToEntity(dto, entity);
