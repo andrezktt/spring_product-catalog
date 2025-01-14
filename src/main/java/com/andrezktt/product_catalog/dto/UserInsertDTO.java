@@ -1,10 +1,8 @@
 package com.andrezktt.product_catalog.dto;
 
-import com.andrezktt.product_catalog.entities.User;
+import com.andrezktt.product_catalog.services.validation.UserInsertValid;
 
-import java.util.HashSet;
-import java.util.Set;
-
+@UserInsertValid
 public class UserInsertDTO extends UserDTO {
 
     private String password;
