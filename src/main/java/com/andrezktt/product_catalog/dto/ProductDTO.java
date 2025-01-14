@@ -2,6 +2,10 @@ package com.andrezktt.product_catalog.dto;
 
 import com.andrezktt.product_catalog.entities.Category;
 import com.andrezktt.product_catalog.entities.Product;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.PastOrPresent;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 import java.time.Instant;
 import java.util.HashSet;
@@ -10,10 +14,15 @@ import java.util.Set;
 public class ProductDTO {
 
     private Long id;
+    @Size(min = 3, max = 30, message = "Deve ter entre 3 e 30 caracteres.")
+    @NotBlank(message = "Campo requerido.")
     private String name;
+    @NotBlank(message = "Campo requerido.")
     private String description;
+    @Positive(message = "O valor deve ser positivo.")
     private Double price;
     private String imgUrl;
+    @PastOrPresent(message = "A data não pode ser futura.")
     private Instant date;
 
     Set<CategoryDTO> categories = new HashSet<>();
