@@ -1,11 +1,11 @@
 package com.andrezktt.product_catalog.services;
 
-import com.andrezktt.product_catalog.config.AppConfig;
 import com.andrezktt.product_catalog.dto.UserDTO;
 import com.andrezktt.product_catalog.dto.UserInsertDTO;
 import com.andrezktt.product_catalog.dto.UserUpdateDTO;
 import com.andrezktt.product_catalog.entities.Role;
 import com.andrezktt.product_catalog.entities.User;
+import com.andrezktt.product_catalog.projections.UserDetailsProjection;
 import com.andrezktt.product_catalog.repositories.RoleRepository;
 import com.andrezktt.product_catalog.repositories.UserRepository;
 import com.andrezktt.product_catalog.services.exceptions.DatabaseException;
@@ -15,16 +15,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
-public class UserService {
+public class UserService implements UserDetailsService {
 
     @Autowired
-    private BCryptPasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private UserRepository repository;
@@ -82,5 +87,23 @@ public class UserService {
         entity.setEmail(dto.getEmail());
         entity.getRoles().clear();
         dto.getRoles().forEach(roleDTO -> entity.getRoles().add(roleRepository.getReferenceById(roleDTO.getId())));
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+
+        List<UserDetailsProjection> result = repository.searchUserAndRolesByEmail(username);
+        if (result.isEmpty()) {
+            throw new UsernameNotFoundException("User not found.");
+        }
+
+        User user = new User();
+        user.setEmail(result.getFirst().getUsername());
+        user.setPassword(result.getFirst().getPassword());
+        for (UserDetailsProjection projection : result) {
+            user.addRole(new Role(projection.getRoleId(), projection.getAuthority()));
+        }
+
+        return user;
     }
 }
