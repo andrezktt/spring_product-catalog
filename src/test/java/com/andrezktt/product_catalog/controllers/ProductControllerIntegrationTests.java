@@ -2,12 +2,12 @@ package com.andrezktt.product_catalog.controllers;
 
 import com.andrezktt.product_catalog.dto.ProductDTO;
 import com.andrezktt.product_catalog.tests.Factory;
+import com.andrezktt.product_catalog.tests.TokenUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -29,10 +29,15 @@ public class ProductControllerIntegrationTests {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private TokenUtil token;
+
     private Long existingId;
     private Long nonExistingId;
     private Long countTotalProducts;
     private ProductDTO productDTO;
+
+    private String username, password, bearerToken;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -40,6 +45,10 @@ public class ProductControllerIntegrationTests {
         nonExistingId = 1000L;
         countTotalProducts = 25L;
         productDTO = Factory.createProductDto();
+
+        username = "maria@gmail.com";
+        password = "123456";
+        bearerToken = token.obtainAccessToken(mockMvc, username, password);
     }
 
     @Test
@@ -65,6 +74,7 @@ public class ProductControllerIntegrationTests {
 
         ResultActions resultActions = mockMvc
                 .perform(put("/products/{id}", existingId)
+                        .header("Authorization", "Bearer " + bearerToken)
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
@@ -80,6 +90,7 @@ public class ProductControllerIntegrationTests {
         String jsonBody = objectMapper.writeValueAsString(productDTO);
         ResultActions resultActions = mockMvc
                 .perform(put("/products/{id}", nonExistingId)
+                        .header("Authorization", "Bearer " + bearerToken)
                         .content(jsonBody)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
