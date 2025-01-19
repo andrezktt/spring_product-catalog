@@ -2,19 +2,24 @@ package com.andrezktt.product_catalog.services;
 
 import com.andrezktt.product_catalog.dto.ProductDTO;
 import com.andrezktt.product_catalog.entities.Product;
+import com.andrezktt.product_catalog.projections.ProductProjection;
 import com.andrezktt.product_catalog.repositories.CategoryRepository;
 import com.andrezktt.product_catalog.repositories.ProductRepository;
 import com.andrezktt.product_catalog.services.exceptions.DatabaseException;
 import com.andrezktt.product_catalog.services.exceptions.ResourceNotFoundException;
+import com.andrezktt.product_catalog.utils.Utils;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Arrays;
+import java.util.List;
 
 @Service
 public class ProductService {
@@ -77,5 +82,20 @@ public class ProductService {
 
         entity.getCategories().clear();
         dto.getCategories().forEach(catDTO -> entity.getCategories().add(categoryRepository.getReferenceById(catDTO.getId())));
+    }
+
+    @SuppressWarnings("unchecked")
+    @Transactional(readOnly = true)
+    public Page<ProductDTO> searchAllPaged(String name, String categoryId, Pageable pageable) {
+        List<Long> categoryIds = categoryId.equals("0") ? Arrays.asList() : Arrays.stream(categoryId.split(",")).map(Long::parseLong).toList();
+
+        Page<ProductProjection> page =  repository.searchProducts(categoryIds, name, pageable);
+        List<Long> productIds = page.map(ProductProjection::getId).toList();
+
+        List<Product> entities = repository.searchProductsWithCategories(productIds);
+        entities = (List<Product>) Utils.replace(page.getContent(), entities);
+        List<ProductDTO> productDTOS = entities.stream().map(product -> new ProductDTO(product, product.getCategories())).toList();
+
+        return new PageImpl<>(productDTOS,page.getPageable(),page.getTotalElements());
     }
 }
