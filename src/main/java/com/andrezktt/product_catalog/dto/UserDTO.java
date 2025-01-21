@@ -1,10 +1,8 @@
 package com.andrezktt.product_catalog.dto;
 
-import com.andrezktt.product_catalog.entities.Role;
 import com.andrezktt.product_catalog.entities.User;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
 
 import java.util.HashSet;
 import java.util.Set;
